@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "24299987231",
+    "project_id": "chat-app-969d7",
+    "storage_bucket": "chat-app-969d7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24299987231:android:53c29d3d80ee97b6b8d02a",
+        "android_client_info": {
+          "package_name": "com.keshav.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "24299987231-5jj17j1b215bmjt3sstlsp13i5bo9749.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.keshav.chat_app",
+            "certificate_hash": "1afaf0a9d9ceb064b6debb42a765253cf7cebc8b"
+          }
+        },
+        {
+          "client_id": "24299987231-pirjtp8ganjnk5pnosgbtr9ej9nj1cfo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv8c3DTb_xeDnesestf6-RzTBISH7qsus"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "24299987231-pirjtp8ganjnk5pnosgbtr9ej9nj1cfo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
