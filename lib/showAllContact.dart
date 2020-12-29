@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';  
 import 'package:chat_app/chatScreen.dart';
+import 'package:chat_app/loginScreen.dart';
 
 class ShowContact extends StatefulWidget {
   @override
@@ -8,7 +9,7 @@ class ShowContact extends StatefulWidget {
 }
 
 class _ShowContactState extends State<ShowContact> {
-  Iterable<Contact> _contacts;
+  List<Contact> _contacts=[];
 
   @override
   void initState() {
@@ -18,8 +19,17 @@ class _ShowContactState extends State<ShowContact> {
 
   Future<void> getContacts() async {
     final Iterable<Contact> contacts = await ContactsService.getContacts();
-    setState(() {
-      _contacts = contacts.where((contact)=>contact.phones.isNotEmpty);
+    contacts.forEach((contact) async{
+      if(contact.phones.isNotEmpty){
+          String phone = contact.phones.elementAt(0).value;
+          phone = phone.replaceAll(" ", "");
+          phone = phone.replaceAll("+91", "");
+
+          final doc = await userCollection.doc(phone).get();
+          if(doc.exists){
+            setState(()=>_contacts.add(contact));
+          }
+      }
     });
   }
   @override
@@ -45,10 +55,8 @@ class _ShowContactState extends State<ShowContact> {
                         ),
                   title: Text(contact.displayName ?? '',style:TextStyle(color:Colors.white,fontSize: 16)),
                   onTap:(){
-                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context )=>ChatScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context )=>ChatScreen(phone:contact.phones.elementAt(0).value,name:contact.displayName ?? '')));
                   },
-                  //This can be further expanded to showing contacts detail
-                  // onPressed().
                 );
           },
         )
