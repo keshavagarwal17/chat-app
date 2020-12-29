@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';  
+import 'package:chat_app/chatScreen.dart';
 
 class ShowContact extends StatefulWidget {
   @override
@@ -24,14 +25,14 @@ class _ShowContactState extends State<ShowContact> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor:Color(0xff21232c),
+        backgroundColor:Color(0xff181a21),
         appBar: AppBar(title:Text("Contacts",style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
-        body:_contacts==null?CircularProgressIndicator():ListView.builder(
+        body:_contacts==null?Container():ListView.builder(
           itemCount: _contacts?.length??0,
           itemBuilder: (BuildContext context,int index){
             Contact contact = _contacts?.elementAt(index);
             return ListTile(
-                  subtitle: Text(contact.phones?.elementAt(0)?.value??"0",style:TextStyle(color:Colors.white)),
+                  subtitle: Text(contact.phones?.elementAt(0)?.value??"0",style:TextStyle(color:Colors.white54)),
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 2, horizontal: 18),
                   leading: (contact.avatar != null && contact.avatar.isNotEmpty)
@@ -42,7 +43,10 @@ class _ShowContactState extends State<ShowContact> {
                           child: Text(contact.initials()),
                           backgroundColor: Theme.of(context).accentColor,
                         ),
-                  title: Text(contact.displayName ?? '',style:TextStyle(color:Colors.white)),
+                  title: Text(contact.displayName ?? '',style:TextStyle(color:Colors.white,fontSize: 16)),
+                  onTap:(){
+                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context )=>ChatScreen()));
+                  },
                   //This can be further expanded to showing contacts detail
                   // onPressed().
                 );

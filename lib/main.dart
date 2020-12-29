@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       home:  Scaffold(
-        backgroundColor:Colors.black,
+        backgroundColor:Color(0xff181a21),
         appBar: AppBar(title:Text("Chat App",style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
         body:loading?Splash():(loggedIn?Home():Login())
       ),
