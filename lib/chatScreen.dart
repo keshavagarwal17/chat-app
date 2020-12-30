@@ -2,13 +2,56 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/loginScreen.dart';
 import 'package:chat_app/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class ChatScreen extends StatelessWidget {
+final CollectionReference messageCollection = FirebaseFirestore.instance.collection("messages");
+
+class ChatScreen extends StatefulWidget {
   String phone,name;
+
+  ChatScreen({this.phone,this.name}){
+    phone = phone.replaceAll(" ", "");
+    phone = phone.replaceAll("+91", ""); 
+  }
+
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
   String currNumber = user.phoneNumber.replaceAll("+91", "");
+  String chatId;
   TextEditingController chatController = new TextEditingController();
-  ChatScreen({this.phone,this.name});
+
+  @override
+  void initState(){
+    super.initState();
+    getChatId();
+  }
+
+  void getChatId()async{
+    final doc = await userCollection.doc(currNumber).collection("friends").doc(widget.phone).get();
+    if(doc.exists){
+      setState(() {
+        chatId = doc.data()["chatId"];
+      });
+    }else{
+      final msgdoc = await messageCollection.add({
+        "user1":currNumber,
+        "user2":widget.phone
+      });
+      setState(() {
+        chatId = msgdoc.id;
+      });
+      userCollection.doc(currNumber).collection("friends").doc(widget.phone).set({
+        "chatId":msgdoc.id
+      });
+      userCollection.doc(widget.phone).collection("friends").doc(currNumber).set({
+        "chatId":msgdoc.id
+      });
+    }
+  }
 
   void sendMessage(){
     String chat = chatController.text.trim();
@@ -16,13 +59,7 @@ class ChatScreen extends StatelessWidget {
       final DateTime now = DateTime.now();
       final DateFormat formatter = DateFormat('dd-MM-yyyy');
       final String formatted = formatter.format(now);
-      userCollection.doc(currNumber).collection("friends").doc(phone).collection("messages").add({
-        "message":chat,
-        "author":user.phoneNumber,
-        "date":formatted,
-        "timeStamp":now.microsecondsSinceEpoch
-      });
-      userCollection.doc(phone).collection("friends").doc(currNumber).collection("messages").add({
+      messageCollection.doc(chatId).collection("msgs").add({
         "message":chat,
         "author":user.phoneNumber,
         "date":formatted,
@@ -34,10 +71,13 @@ class ChatScreen extends StatelessWidget {
 
   showChat(){
     return StreamBuilder(
-      stream: userCollection.doc(currNumber).collection("friends").doc(phone).collection("messages").orderBy("timeStamp").snapshots(),
+      stream: messageCollection.doc(chatId).collection("msgs").orderBy("timeStamp").snapshots(),
       builder: (context,snapshot){
           List<Bubble> msgs=[];
           if(snapshot.hasData){
+            if(snapshot.data.docs.isEmpty){
+              return Text("");
+            }
             msgs.add(
               Bubble(
                 margin: BubbleEdges.only(top: 10,left:50),
@@ -72,17 +112,6 @@ class ChatScreen extends StatelessWidget {
                 ),
               );
             }
-            // snapshot.data.docs.forEach((doc){
-            //     msgs.add(
-            //       Text(
-            //         snapshot.data.docs[0].data()["message"],
-            //         textAlign: TextAlign.right,
-            //         style:TextStyle(
-            //           color:Colors.white,
-            //           backgroundColor:  Color(0xff23836a) 
-            //         ))
-            //     );
-            // });
             return Column(
               children: msgs,
             );
@@ -95,8 +124,8 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title:Text(name,style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
+    return chatId==null?Container():Scaffold(
+      appBar: AppBar(title:Text(widget.name,style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
       body:Container(
         decoration: BoxDecoration(
           image: DecorationImage(

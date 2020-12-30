@@ -50,8 +50,8 @@ class _ShowContactState extends State<ShowContact> {
                           backgroundImage: MemoryImage(contact.avatar),
                         )
                       : CircleAvatar(
-                          child: Text(contact.initials()),
-                          backgroundColor: Theme.of(context).accentColor,
+                          child: Text(contact.initials(),style:TextStyle(color:Colors.black)),
+                          backgroundColor: Color(0xff4ACFAC),
                         ),
                   title: Text(contact.displayName ?? '',style:TextStyle(color:Colors.white,fontSize: 16)),
                   onTap:(){
