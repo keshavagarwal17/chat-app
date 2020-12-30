@@ -2,6 +2,7 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/loginScreen.dart';
 import 'package:chat_app/main.dart';
+import 'package:chat_app/loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
@@ -124,9 +125,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context){
-    return chatId==null?Container():Scaffold(
+    return Scaffold(
       appBar: AppBar(title:Text(widget.name,style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
-      body:Container(
+      body:chatId==null?Loading():Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("./assets/bg.jpg"),

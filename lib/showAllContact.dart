@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';  
 import 'package:chat_app/chatScreen.dart';
 import 'package:chat_app/loginScreen.dart';
+import 'package:chat_app/loading.dart';
 
 class ShowContact extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class _ShowContactState extends State<ShowContact> {
     return Scaffold(
         backgroundColor:Color(0xff181a21),
         appBar: AppBar(title:Text("Contacts",style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
-        body:_contacts==null?Container():ListView.builder(
+        body:_contacts.isEmpty?Loading():ListView.builder(
           itemCount: _contacts?.length??0,
           itemBuilder: (BuildContext context,int index){
             Contact contact = _contacts?.elementAt(index);
