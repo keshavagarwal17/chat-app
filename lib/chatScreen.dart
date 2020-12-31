@@ -32,6 +32,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void getChatId()async{
+    userCollection
+          .doc(currNumber)
+          .update({'chattingWith': widget.phone});
     final doc = await userCollection.doc(currNumber).collection("friends").doc(widget.phone).get();
     if(doc.exists){
       setState(() {
@@ -62,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final String formatted = formatter.format(now);
       messageCollection.doc(chatId).collection("msgs").add({
         "message":chat,
-        "author":user.phoneNumber,
+        "author":currNumber,
         "date":formatted,
         "timeStamp":now.microsecondsSinceEpoch
       });
@@ -81,10 +84,10 @@ class _ChatScreenState extends State<ChatScreen> {
             }
             msgs.add(
               Bubble(
-                margin: BubbleEdges.only(top: 10,left:50),
-                alignment:(snapshot.data.docs[0].data()["author"]==user.phoneNumber)? Alignment.topRight:Alignment.topLeft,
-                nip:(snapshot.data.docs[0].data()["author"]==user.phoneNumber)?  BubbleNip.rightTop:BubbleNip.leftTop,
-                color: (snapshot.data.docs[0].data()["author"]==user.phoneNumber)?Color(0xff23836a): Color(0xff464a5e) ,
+                margin: (snapshot.data.docs[0].data()["author"]==currNumber)?BubbleEdges.only(top: 10,left:50):BubbleEdges.only(top: 10,right:50),
+                alignment:(snapshot.data.docs[0].data()["author"]==currNumber)? Alignment.topRight:Alignment.topLeft,
+                nip:(snapshot.data.docs[0].data()["author"]==currNumber)?  BubbleNip.rightTop:BubbleNip.leftTop,
+                color: (snapshot.data.docs[0].data()["author"]==currNumber)?Color(0xff23836a): Color(0xff464a5e) ,
                 child: 
                   Text(
                     snapshot.data.docs[0].data()["message"],
@@ -98,10 +101,13 @@ class _ChatScreenState extends State<ChatScreen> {
             for(int i=1;i<snapshot.data.docs.length;i++){
                 msgs.add(
                 Bubble(
-                  margin: (snapshot.data.docs[i].data()["author"]==snapshot.data.docs[i-1].data()["author"])?BubbleEdges.only(top: 2,left:50):BubbleEdges.only(top: 10,left:50),
-                  alignment:(snapshot.data.docs[i].data()["author"]==user.phoneNumber)? Alignment.topRight:Alignment.topLeft,
-                  nip:(snapshot.data.docs[i].data()["author"]==snapshot.data.docs[i-1].data()["author"])?BubbleNip.no: (snapshot.data.docs[i].data()["author"]==user.phoneNumber)?  BubbleNip.rightTop:BubbleNip.leftTop,
-                  color: (snapshot.data.docs[i].data()["author"]==user.phoneNumber)?Color(0xff23836a): Color(0xff464a5e) ,
+                  margin: (snapshot.data.docs[i].data()["author"]==snapshot.data.docs[i-1].data()["author"])?
+                  (snapshot.data.docs[i].data()["author"]==currNumber)?BubbleEdges.only(top: 2,left:50):BubbleEdges.only(top: 2,right:50)
+                  :
+                   (snapshot.data.docs[i].data()["author"]==currNumber)?BubbleEdges.only(top: 10,left:50):BubbleEdges.only(top: 10,right:50),
+                  alignment:(snapshot.data.docs[i].data()["author"]==currNumber)? Alignment.topRight:Alignment.topLeft,
+                  nip:(snapshot.data.docs[i].data()["author"]==snapshot.data.docs[i-1].data()["author"])?BubbleNip.no: (snapshot.data.docs[i].data()["author"]==currNumber)?  BubbleNip.rightTop:BubbleNip.leftTop,
+                  color: (snapshot.data.docs[i].data()["author"]==currNumber)?Color(0xff23836a): Color(0xff464a5e) ,
                   child: 
                     Text(
                       snapshot.data.docs[i].data()["message"], 
@@ -122,75 +128,86 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
+  Future<bool> onBackPress() {
+    
+      userCollection
+          .doc(currNumber)
+          .update({'chattingWith': null});
+      Navigator.pop(context);
+    return Future.value(false);
+  }
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title:Text(widget.name,style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
-      body:chatId==null?Loading():Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("./assets/bg.jpg"),
-            fit: BoxFit.cover
-          )
-        ),
-        child: Stack(
-        children: [
-          ListView(
-            children: [
-              showChat(),
-              SizedBox(height:70)
-            ],
-          ),
-          Positioned(
-            bottom: 0.0,
-            left: 0.0,
-            right: 0.0,
-            child: TextFormField(
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              textInputAction: TextInputAction.newline,
-              controller: chatController,
-              autofocus: false,
-              cursorColor: Colors.white,
-              style: TextStyle(color: Colors.white,fontSize: 17),
-              decoration: InputDecoration(
-                isDense: true,
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(40.0)),
-                    borderSide: BorderSide(
-                      color: Color(0xff262833)
-                    )
-                ),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(35.0),
-                    borderSide: BorderSide(
-                      color: Color(0xff262833)
-                    )
-                ),
-                hintText: "Type Something Here.",
-                filled: true,
-                fillColor: Color(0xff262833),
-                focusColor: Color(0xff262833),
-                hintStyle: TextStyle(color:Colors.white54),
-                prefixIcon: IconButton(
-                  onPressed:(){},
-                  icon:Icon(
-                    Icons.emoji_emotions,
-                    color: Colors.white38,
-                  )
-                ),
-                suffixIcon: IconButton(
-                    onPressed: sendMessage,
-                    icon: Icon(
-                      Icons.send,
-                      color: Color(0xff4ACFAC),
-                    )),
-              ),
+    return WillPopScope(
+      child: Scaffold(
+        appBar: AppBar(title:Text(widget.name,style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
+        body:chatId==null?Loading():Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("./assets/bg.jpg"),
+              fit: BoxFit.cover
             )
-          )
-        ],
-    ),
-      ));
+          ),
+          child: Stack(
+          children: [
+            ListView(
+              children: [
+                showChat(),
+                SizedBox(height:70)
+              ],
+            ),
+            Positioned(
+              bottom: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: TextFormField(
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                textInputAction: TextInputAction.newline,
+                controller: chatController,
+                autofocus: false,
+                cursorColor: Colors.white,
+                style: TextStyle(color: Colors.white,fontSize: 17),
+                decoration: InputDecoration(
+                  isDense: true,
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(40.0)),
+                      borderSide: BorderSide(
+                        color: Color(0xff262833)
+                      )
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(35.0),
+                      borderSide: BorderSide(
+                        color: Color(0xff262833)
+                      )
+                  ),
+                  hintText: "Type Something Here.",
+                  filled: true,
+                  fillColor: Color(0xff262833),
+                  focusColor: Color(0xff262833),
+                  hintStyle: TextStyle(color:Colors.white54),
+                  prefixIcon: IconButton(
+                    onPressed:(){},
+                    icon:Icon(
+                      Icons.emoji_emotions,
+                      color: Colors.white38,
+                    )
+                  ),
+                  suffixIcon: IconButton(
+                      onPressed: sendMessage,
+                      icon: Icon(
+                        Icons.send,
+                        color: Color(0xff4ACFAC),
+                      )),
+                ),
+              )
+            )
+          ],
+      ),
+      )),
+      onWillPop: onBackPress,
+    );
   }
 }

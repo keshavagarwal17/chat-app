@@ -3,6 +3,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:chat_app/chatScreen.dart';
 import 'package:chat_app/loginScreen.dart';
 import 'package:chat_app/loading.dart';
+import 'package:chat_app/homeScreen.dart';
 
 class ShowContact extends StatefulWidget {
   @override
@@ -19,7 +20,6 @@ class _ShowContactState extends State<ShowContact> {
   }
 
   Future<void> getContacts() async {
-    final Iterable<Contact> contacts = await ContactsService.getContacts();
     contacts.forEach((contact) async{
       if(contact.phones.isNotEmpty){
           String phone = contact.phones.elementAt(0).value;

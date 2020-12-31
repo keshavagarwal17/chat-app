@@ -37,6 +37,8 @@ dependencies:
   contacts_service: ^0.4.6
   cloud_firestore: ^0.14.4
   bubble: ^1.1.9+1
+  firebase_messaging: ^7.0.3
+  flutter_local_notifications: ^3.0.2
 
 dev_dependencies:
   flutter_test:
