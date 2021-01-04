@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:chat_app/permissions_service.dart';
+import 'package:chat_app/permissionDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/showAllContact.dart';
 import 'package:chat_app/loginScreen.dart';
@@ -24,7 +25,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool showSplash = true;
+  bool showSplash = false;
   Map chatContact=new Map();
   String currentUser;
 
@@ -82,12 +83,20 @@ class _HomeState extends State<Home> {
   void initState(){
     super.initState();
     currentUser = user.phoneNumber.replaceAll("+91", "");
-    getChats();
+    // getChats();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => getChats());
     registerNotification();
     configLocalNotification();
   }
+  
+  Future<void> presentDialog(bool val)async{
+    await PermissionDialog().showAlertDialog(context,val,presentDialog);
+    return;
+  }
 
   void getChats()async{
+    await PermissionsService().hasContactsPermission(presentDialog);
     contacts = await ContactsService.getContacts();
     contacts.forEach((contact){
       if(contact.phones.isNotEmpty){
@@ -97,7 +106,6 @@ class _HomeState extends State<Home> {
           chatContact[phone]=contact.displayName ?? '';
       }
     });
-    
     setState(() {
       showSplash = false;
     });
@@ -157,21 +165,7 @@ class _HomeState extends State<Home> {
           Icons.chat
         ),
         onPressed: ()async{
-          bool ispermitted = await PermissionsService().hasContactsPermission();
-          if(ispermitted){
-              print("Already given");
-              Navigator.push(context,MaterialPageRoute(builder: (BuildContext context)=>ShowContact()));
-          }else{
-            bool pm = await PermissionsService().requestContactPermission(
-                onPermissionDenied: () {
-                  print('Permission has been denied');
-                }
-            );
-            if(pm){
-              Navigator.push(context,MaterialPageRoute(builder: (BuildContext context)=>ShowContact()));
-            }
-            print(pm);
-          }
+           Navigator.push(context,MaterialPageRoute(builder: (BuildContext context)=>ShowContact()));
         },
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:chat_app/homeScreen.dart';
+import 'package:chat_app/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ Future registerUser(String number,BuildContext context)async{
               "uid":result.additionalUserInfo.providerId
             });
           }
-          
+          user = _auth.currentUser;
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context)=>Home()));
         }catch(e){
           print("Error in verificationCompleted");
@@ -57,6 +58,7 @@ Future registerUser(String number,BuildContext context)async{
                         "uid":result.additionalUserInfo.providerId
                       });
                     }
+                    user = _auth.currentUser;
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context)=>Home()));
                   }catch(e){
                     print("Error in codesent");
@@ -85,6 +87,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor:Color(0xff181a21),
         appBar: AppBar(title:Text("Chat App",style: TextStyle(color:Color(0xff4ACFAC)),),backgroundColor: Color(0xff262833),),
         body: Padding(
         padding: const EdgeInsets.only(top:45.0,left:15,right:15),
